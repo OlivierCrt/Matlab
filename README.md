@@ -1,88 +1,91 @@
-# Université Toulouse III Paul Sabatier - UPSSITECH  
-## Travaux Pratiques 2ASRI  
-**Commande Articulaire d’un Robot Manipulateur de Type RP**
+# Rapport de TP - Commande Articulaire d’un Robot Manipulateur RP
+
+## Université Toulouse III Paul Sabatier - UPSSITECH
+**Travaux Pratiques 2ASRI**
+
+### Sujet : Commande Articulaire d’un Robot Manipulateur de Type RP
+Ce document présente les étapes de simulation sous MATLAB-SIMULINK de diverses stratégies de commande articulaire pour un bras manipulateur élémentaire de type RP.
 
 ---
 
-### **Objectif du TP**
-Ce TP vise à étudier, sous MATLAB-SIMULINK, diverses stratégies de commande articulaire pour un robot manipulateur élémentaire de type RP. L'objectif est d'asservir les variables articulaires \( q_1(t) \) et \( q_2(t) \) à des lois horaires prédéfinies, en explorant des approches PD, PID, et des commandes non linéaires.
+### **I. Présentation du robot**
+Le robot est modélisé dans un repère orthonormé \( R_0 = (O_0, x_0, y_0, z_0) \). Il s’agit d’un manipulateur à chaîne cinématique ouverte avec :
+- Une liaison rotoïde \( L_1 \) pivotant autour de \( z_0 \) (coordonnée \( q_1 \)),
+- Une liaison prismatique \( L_2 \) reliant \( O_0 \) à \( O_3 \) (distance paramétrée par \( q_2 \)).
+
+Les consignes de position \( q_1(t) \) et \( q_2(t) \) sont générées à partir de lois horaires correspondant à des mouvements uniformément accélérés, constants, puis décélérés.
 
 ---
 
-### **Présentation du Robot**
-Le manipulateur est décrit par :
-- Une liaison rotative \( L_1 \) (autour de \( z_0 \)), paramétrée par \( q_1 \).
-- Une liaison prismatique \( L_2 \), paramétrée par \( q_2 \), définie comme la distance \( O_0O_3 \).
+### **II. Travail demandé**
+#### **II.1 Prise en main et calculs préliminaires**
+1. **Démarrage** :
+   - Lancer MATLAB/SIMULINK.
+   - Importer les blocs `profils_de_consigne_axes_1_et_2` et `robot_RP` de la librairie `lib_robotRP`.
 
-#### **Modèle Dynamique Inverse**
-Le modèle dynamique inverse du robot s’exprime comme suit :
-\[
-\Gamma(t) = D(q(t))\ddot{q}(t) + B(q(t), \dot{q}(t)) + G(q(t))
-\]
-- **Matrice Dynamique** :
-\[
-D(q) = \begin{bmatrix}
-m q_2^2 & 0 \\
-0 & m
-\end{bmatrix}
-\]
-- **Efforts Centrifuges et de Coriolis** :
-\[
-B(q, \dot{q}) = \begin{bmatrix}
-2m q_2 \dot{q}_1 \dot{q}_2 \\
--m q_2 \dot{q}_1^2
-\end{bmatrix}
-\]
-- **Efforts Gravitationnels** :
-\[
-G(q) = -\begin{bmatrix}
-m q_2 g_y \cos(q_1) \\
-m g_y \sin(q_1)
-\end{bmatrix}
-\]
-Avec \( m = 15 \, \mathrm{kg} \).
-
-#### **Modélisation des Actionneurs**
-Les actionneurs, représentés par des moteurs à courant continu avec réducteurs, suivent un schéma de type :
-\[
-V_i(p) = K(\Theta_{mi}^*(p) - \Theta_{mi}(p)) - K_D p \Theta_{mi}(p)
-\]
-Les paramètres pertinents incluent \( K_m/R = 0.3 \), \( B_{\text{eff}} = 1/80 \), \( J_m = 1/100 \), et des rapports \( r \in \{1/200, 1/30, 1\} \).
+2. **Étude des rapports de réduction \( r \in \{1/200, 1/30, 1\} \)** :
+   - Identifier les inerties efficaces \( J_{\text{eff}i} = J_m + r^2 m \),
+   - Simuler avec différentes perturbations \( d_1, d_2 \).
 
 ---
 
-### **Travail Réalisé**
-#### **1. Prise en Main de l’Outil de Simulation**
-- **Initialisation** : Chargement de la bibliothèque `lib_robotRP` sous SIMULINK. Insertion des blocs `profils_de_consigne_axes_1_et_2` et `robot_RP` dans un diagramme vierge.
-- **Observation** : Analyse des profils de consigne \( q_1(t) \) et \( q_2(t) \) en fonction du temps.
+#### **II.2 Commande en vitesse de type PD**
+3. **Synthèse analytique** :
+   - Loi : \( V_i(p) = K(\Theta^*_m(p) - \Theta_m(p)) - K_D p\Theta_m(p) \),
+   - Déterminer \( K \) et \( K_D \) pour un amortissement unitaire.
 
-#### **2. Commande en Vitesse de Type PD**
-- **Synthèse de la Loi de Commande** :
-  - Coefficients \( K \) et \( K_D \) calculés pour une erreur de vitesse \( \varepsilon_{1i}/\theta_{1mi} = 1/2 \).
-  - Validation par simulation des réponses temporelles pour des consignes en échelon et en rampe.
-- **Analyse** : Étude de la robustesse en présence de perturbations gravitationnelles et conclusions sur la validité du modèle linéaire.
+4. **Étapes d’analyse** :
+   - Calcul des coefficients pour \( \epsilon_{1i}/\Theta_{1mi} = 1/2 \),
+   - Simulations sous SIMULINK :
+     - Réponse pour des consignes échelons (position et vitesse),
+     - Effet des perturbations \( r d_i \),
+     - Introduction de la gravitation.
 
-#### **3. Commande en Vitesse de Type PID**
-- **Optimisation** : Détermination du temps intégral \( T_I \) pour améliorer la précision sans dégrader la stabilité.
-- **Simulation** : Implémentation sous SIMULINK et ajustement manuel de \( T_I \) pour des résultats optimaux.
-
-#### **4. Commande Non Linéaire Centralisée**
-- **Feedforward** : Introduction d’une loi avant via la fonction `sf_loi_avant_RP.m`. Simulations menées pour comparer l’approche avec celles précédentes.
-- **Découplage** : Élaboration d’un retour linéarisant et analyse des performances en boucle fermée.
+5. **Conclusions** :
+   - Valider l’approximation linéaire,
+   - Étudier l’influence de la gravitation.
 
 ---
 
-### **Résultats et Conclusions**
-1. La commande PD offre un compromis simple et efficace, bien qu’elle soit sensible aux perturbations gravitationnelles.
-2. La commande PID améliore la précision mais nécessite un ajustement minutieux pour préserver la stabilité.
-3. Les approches non linéaires permettent un meilleur suivi des consignes grâce à leur capacité à intégrer directement les dynamiques complexes du système.
-
-#### **Perspectives**
-- Étendre les simulations à des scénarios plus complexes (contact avec environnement).
-- Comparer les résultats obtenus avec des approches modernes comme l’asservissement par apprentissage.
+#### **II.3 Commande en vitesse de type PID**
+6. **Amélioration** :
+   - Ajuster \( T_I \) via des lieux de transfert,
+   - Implémenter une commande PID dans SIMULINK.
 
 ---
 
-### **Annexes**
-- **Schémas Simulink** : Diagrammes détaillés des configurations PD, PID, et non linéaires.
-- **Codes MATLAB** : Implémentations des fonctions `sf_loi_avant_RP.m` et `sf_retour_linearisant_RP.m`.
+#### **II.4 Retour sur la modélisation**
+7. **Justification** :
+   - Relier \( J_{\text{eff}i} \) et \( r d_i \) aux modèles dynamiques,
+   - Calcul des valeurs extrêmes et choix optimal.
+
+---
+
+#### **II.5 Commande non linéaire centralisée par anticipation**
+8. **Feedforward** :
+   - Déterminer l’expression théorique du terme d’anticipation,
+   - Compléter le code `sf_loi_avant_RP.m`.
+
+9. **Comparaison** :
+   - Simuler pour \( r \in \{1/200, 1/30, 1\} \),
+   - Comparer les avantages et inconvénients.
+
+---
+
+#### **II.6 Commande non linéaire centralisée par découplage**
+10. **Linéarisation** :
+    - Synthétiser une commande linéarisante avec double intégrateur.
+
+11. **Implémentation** :
+    - Compléter `sf_retour_linearisant_RP.m`,
+    - Tester pour \( r \in \{1/200, 1/30, 1\} \).
+
+---
+
+### **Conclusions générales**
+- Analyse des performances des stratégies PD, PID, et non linéaires,
+- Validation des modèles dynamiques et robustesse face à la gravitation et perturbations,
+- Comparaison des rapports de réduction et de leurs impacts sur la commande.
+
+**Note** : Les fichiers SIMULINK et les codes MATLAB associés sont nécessaires pour la reproduction des simulations.
+
