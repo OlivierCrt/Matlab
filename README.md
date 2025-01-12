@@ -1,91 +1,58 @@
-# Rapport de TP - Commande Articulaire d’un Robot Manipulateur RP
+# README
 
-## Université Toulouse III Paul Sabatier - UPSSITECH
-**Travaux Pratiques 2ASRI**
+## Articulated Control of an RP Robot Manipulator
 
-### Sujet : Commande Articulaire d’un Robot Manipulateur de Type RP
-Ce document présente les étapes de simulation sous MATLAB-SIMULINK de diverses stratégies de commande articulaire pour un bras manipulateur élémentaire de type RP.
+This project focuses on the simulated study of various strategies for the joint control of a simple RP manipulator using MATLAB-SIMULINK. Below is a brief overview of the key tasks and objectives:
 
----
+### Objectives
+- Simulate and analyze joint control strategies for an RP manipulator.
+- Implement control laws including PD, PID, and nonlinear centralized controls.
+- Evaluate performance with different reduction ratios and environmental conditions.
 
-### **I. Présentation du robot**
-Le robot est modélisé dans un repère orthonormé \( R_0 = (O_0, x_0, y_0, z_0) \). Il s’agit d’un manipulateur à chaîne cinématique ouverte avec :
-- Une liaison rotoïde \( L_1 \) pivotant autour de \( z_0 \) (coordonnée \( q_1 \)),
-- Une liaison prismatique \( L_2 \) reliant \( O_0 \) à \( O_3 \) (distance paramétrée par \( q_2 \)).
+### Setup Instructions
+1. Launch **MATLAB** and **SIMULINK**.
+2. Open the `lib_robotRP` library.
+3. Create a new SIMULINK diagram and include the following blocks:
+   - `profils_de_consigne_axes_1_et_2`
+   - `robot_RP`
+4. Explore block parameters and configure simulation settings.
 
-Les consignes de position \( q_1(t) \) et \( q_2(t) \) sont générées à partir de lois horaires correspondant à des mouvements uniformément accélérés, constants, puis décélérés.
+### Key Tasks
+1. **Simulation Setup**:
+   - Test and analyze predefined motion profiles.
+   - Explore the effect of reduction ratios (`r = 1/200, 1/30, 1`) on system dynamics.
 
----
+2. **PD Control**:
+   - Derive and calculate proportional-derivative (PD) coefficients.
+   - Analyze open-loop and closed-loop behaviors.
+   - Simulate responses for position and velocity inputs, with and without disturbances.
 
-### **II. Travail demandé**
-#### **II.1 Prise en main et calculs préliminaires**
-1. **Démarrage** :
-   - Lancer MATLAB/SIMULINK.
-   - Importer les blocs `profils_de_consigne_axes_1_et_2` et `robot_RP` de la librairie `lib_robotRP`.
+3. **PID Control**:
+   - Implement a proportional-integral-derivative (PID) control strategy.
+   - Tune parameters to improve system stability and precision.
 
-2. **Étude des rapports de réduction \( r \in \{1/200, 1/30, 1\} \)** :
-   - Identifier les inerties efficaces \( J_{\text{eff}i} = J_m + r^2 m \),
-   - Simuler avec différentes perturbations \( d_1, d_2 \).
+4. **Nonlinear Centralized Controls**:
+   - Develop feedforward and decoupling control laws.
+   - Complete the provided "S-function" templates:
+     - `sf_loi_avant_RP.m`
+     - `sf_retour_linearisant_RP.m`
+   - Test and compare these strategies against linear approximations.
 
----
+5. **Model Validation**:
+   - Verify the linear approximation's validity.
+   - Investigate the influence of gravitational forces and other nonlinear effects.
 
-#### **II.2 Commande en vitesse de type PD**
-3. **Synthèse analytique** :
-   - Loi : \( V_i(p) = K(\Theta^*_m(p) - \Theta_m(p)) - K_D p\Theta_m(p) \),
-   - Déterminer \( K \) et \( K_D \) pour un amortissement unitaire.
+### Simulation Notes
+- Use `r = 1/200` for most PID experiments.
+- Incorporate disturbances and environmental variations for robust testing.
+- Leverage provided "S-functions" for implementing advanced control algorithms.
 
-4. **Étapes d’analyse** :
-   - Calcul des coefficients pour \( \epsilon_{1i}/\Theta_{1mi} = 1/2 \),
-   - Simulations sous SIMULINK :
-     - Réponse pour des consignes échelons (position et vitesse),
-     - Effet des perturbations \( r d_i \),
-     - Introduction de la gravitation.
+### Deliverables
+- A functional SIMULINK model demonstrating the control strategies.
+- Documented performance metrics and observations for all cases.
 
-5. **Conclusions** :
-   - Valider l’approximation linéaire,
-   - Étudier l’influence de la gravitation.
+### Resources
+- **MATLAB-SIMULINK library**: `lib_robotRP`
+- **S-functions**: `sf_loi_avant_RP.m`, `sf_retour_linearisant_RP.m`
 
----
-
-#### **II.3 Commande en vitesse de type PID**
-6. **Amélioration** :
-   - Ajuster \( T_I \) via des lieux de transfert,
-   - Implémenter une commande PID dans SIMULINK.
-
----
-
-#### **II.4 Retour sur la modélisation**
-7. **Justification** :
-   - Relier \( J_{\text{eff}i} \) et \( r d_i \) aux modèles dynamiques,
-   - Calcul des valeurs extrêmes et choix optimal.
-
----
-
-#### **II.5 Commande non linéaire centralisée par anticipation**
-8. **Feedforward** :
-   - Déterminer l’expression théorique du terme d’anticipation,
-   - Compléter le code `sf_loi_avant_RP.m`.
-
-9. **Comparaison** :
-   - Simuler pour \( r \in \{1/200, 1/30, 1\} \),
-   - Comparer les avantages et inconvénients.
-
----
-
-#### **II.6 Commande non linéaire centralisée par découplage**
-10. **Linéarisation** :
-    - Synthétiser une commande linéarisante avec double intégrateur.
-
-11. **Implémentation** :
-    - Compléter `sf_retour_linearisant_RP.m`,
-    - Tester pour \( r \in \{1/200, 1/30, 1\} \).
-
----
-
-### **Conclusions générales**
-- Analyse des performances des stratégies PD, PID, et non linéaires,
-- Validation des modèles dynamiques et robustesse face à la gravitation et perturbations,
-- Comparaison des rapports de réduction et de leurs impacts sur la commande.
-
-**Note** : Les fichiers SIMULINK et les codes MATLAB associés sont nécessaires pour la reproduction des simulations.
-
+For further details, refer to the project documentation and embedded comments in the code files.
